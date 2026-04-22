@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>./— 여름 추억 2025</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#eae5db;font-family:Georgia,'Times New Roman',serif;color:#2e2820}
+.wrap{background:#f0ebe1;min-height:100vh;max-width:400px;margin:0 auto;position:relative;overflow:hidden}
+.view{display:none}
+.view.active{display:block}
+
+/* ── 헤더 ── */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:.5px solid #d4cec6;position:sticky;top:0;background:#f0ebe1;z-index:20}
+.hdr-logo{font-family:monospace;font-size:11px;color:#7a7060;letter-spacing:.12em}
+.hdr-title{font-size:12px;color:#2e2820;font-style:italic}
+.badge-filling{font-size:10px;background:#ecdec4;color:#7a5c30;padding:3px 8px;border-radius:10px;font-family:monospace}
+.badge-done{font-size:10px;background:#c8a87c;color:#fff;padding:3px 8px;border-radius:10px;font-family:monospace}
+.btn-back{background:none;border:none;color:#9a9088;cursor:pointer;font-size:11px;font-family:Georgia,serif;font-style:italic;padding:0}
+
+/* ── 버튼 ── */
+.btn-dark{width:100%;padding:13px;background:#2e2820;color:#f0ebe1;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-family:Georgia,serif;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .15s}
+.btn-dark:hover{opacity:.85}
+.btn-outline{width:100%;padding:13px;background:transparent;color:#7a7060;border:.5px solid #c8c0b4;border-radius:6px;font-size:13px;cursor:pointer;font-family:Georgia,serif;transition:all .2s}
+.btn-outline.active{background:#c8a87c;color:#fff;border-color:#c8a87c}
+.btn-ghost{width:100%;padding:10px;background:transparent;color:#7a7060;border:.5px solid #c8c0b4;border-radius:6px;font-size:11px;cursor:pointer;font-family:Georgia,serif;font-style:italic;transition:all .2s}
+.btn-ghost.active{background:#c8a87c;color:#fff;border-color:#c8a87c}
+.btn-sm{flex-shrink:0;padding:8px 12px;background:transparent;color:#2e2820;border:.5px solid #2e2820;border-radius:6px;font-size:11px;cursor:pointer;font-family:Georgia,serif;font-style:italic;white-space:nowrap;transition:opacity .15s}
+.btn-sm:hover{opacity:.7}
+
+/* ── 스크랩북 ── */
+.canvas-wrap{margin:0 13px;background:#faf6ee;border-radius:6px;border:.5px solid #d4cec6;position:relative;width:calc(100% - 26px);aspect-ratio:3/4.1;overflow:hidden}
+.pg-title{position:absolute;top:41%;left:66%;font-style:italic;font-size:clamp(10px,3.2vw,15px);color:#5a4e40;transform:rotate(-1.5deg);line-height:1.5;pointer-events:none;z-index:2}
+.pg-title span{font-size:.72em;font-style:normal;color:#9a8878}
+.aster{position:absolute;font-size:10px;color:#c0b8ac;pointer-events:none;z-index:2}
+.slot{position:absolute;z-index:1;transition:transform .15s}
+.slot-filled{width:100%;height:100%;border-radius:2px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.slot-play{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-size:6px}
+.slot-bar{position:absolute;bottom:0;left:0;right:0;padding:2px 3px;background:rgba(0,0,0,.08);display:flex;justify-content:space-between}
+.slot-label{font-size:5px;color:rgba(0,0,0,.5)}
+.slot-user{font-size:4px;color:rgba(0,0,0,.35)}
+.slot-empty{width:100%;height:100%;border:1.5px dashed rgba(160,148,136,.55);border-radius:2px;background:rgba(250,247,240,.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.slot-plus{width:13px;height:13px;border-radius:50%;border:1px dashed rgba(160,148,136,.5);display:flex;align-items:center;justify-content:center;font-size:7px;color:rgba(160,148,136,.6)}
+.slot-none{font-size:4.5px;color:rgba(160,148,136,.5);letter-spacing:.02em}
+
+/* ── 완성 애니메이션 ── */
+@keyframes slotPop{0%{transform:scale(1) rotate(var(--rot))} 40%{transform:scale(1.12) rotate(var(--rot))} 70%{transform:scale(.97) rotate(var(--rot))} 100%{transform:scale(1) rotate(var(--rot))}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%,100%{opacity:.7} 50%{opacity:1}}
+.slot-pop{animation:slotPop .5s cubic-bezier(.36,.07,.19,.97) both}
+.fade-up{animation:fadeUp .55s ease both}
+
+/* ── 완성 오버레이 ── */
+#complete-flash{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:400px;height:100vh;background:rgba(200,168,124,.13);pointer-events:none;opacity:0;z-index:100;transition:opacity .4s}
+#complete-flash.show{opacity:1}
+
+/* ── 기타 공통 ── */
+.pane{background:#faf6ee;border-radius:8px;border:.5px solid #d4cec6;padding:12px 15px}
+.pane-title{font-size:10px;color:#7a7060;font-style:italic;margin-bottom:10px}
+.prog-wrap{padding:7px 16px 5px;display:flex;align-items:center;gap:8px}
+.prog-bar{flex:1;height:3px;background:#d4cec6;border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:#8ab88a;border-radius:2px;width:55.5%}
+.stat-row{display:flex;justify-content:center;gap:32px;padding:16px 16px 12px;border-bottom:.5px solid #d4cec6}
+.stat-val{font-size:18px;color:#2e2820;font-family:monospace;line-height:1}
+.stat-label{font-size:9px;color:#9a9088;margin-top:4px;letter-spacing:.04em;text-align:center}
+.legend{display:flex;gap:20px;justify-content:center;padding:12px 16px 10px}
+.legend-line{width:18px;height:0;border-top:1.8px solid #b8a87c;opacity:.7}
+.legend-dash{width:18px;height:0;border-top:1px dashed #c0b4a8}
+.legend-text{font-size:9px;color:#9a9088}
+.hist-card{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#faf6ee;border-radius:8px;border:.5px solid #d4cec6}
+.member-dot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.88}
+.member-dot span{font-size:9px;color:rgba(255,255,255,.92);font-family:serif}
+.mini-svg-wrap{width:82px;height:82px;flex-shrink:0}
+.footer{text-align:center;padding:16px 13px 32px;font-size:10px;color:#c0b8ac;font-family:monospace;letter-spacing:.1em}
+#hov-info{min-height:40px;display:flex;align-items:center;justify-content:center;padding:8px 16px;gap:8px;border-bottom:.5px solid #d4cec6;opacity:0;transition:opacity .2s}
+.bridge-tag{font-size:9px;color:#c8a87c;background:rgba(200,168,124,.1);border:.5px solid rgba(200,168,124,.4);padding:1px 6px;border-radius:8px;font-family:monospace}
+
+/* ════ 1. 랜딩 화면 ════ */
+#view-landing .landing-hero{padding:40px 24px 28px;text-align:center}
+#view-landing .landing-from{font-size:11px;color:#9a9088;font-style:italic;margin-bottom:16px}
+#view-landing .landing-title{font-size:24px;color:#2e2820;line-height:1.3;margin-bottom:10px}
+#view-landing .landing-title em{color:#c8a87c;font-style:normal}
+#view-landing .landing-sub{font-size:12px;color:#7a7060;line-height:1.7;margin-bottom:28px}
+#view-landing .landing-preview{margin:0 24px 28px;background:#faf6ee;border-radius:10px;border:.5px solid #d4cec6;padding:16px;display:flex;align-items:center;gap:14px}
+#view-landing .landing-slots{display:flex;gap:5px}
+#view-landing .slot-thumb{width:36px;height:48px;border-radius:3px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#view-landing .slot-thumb-empty{width:36px;height:48px;border-radius:3px;border:1.5px dashed rgba(160,148,136,.4);display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(160,148,136,.5)}
+#view-landing .landing-info{flex:1}
+#view-landing .landing-count{font-size:20px;color:#2e2820;font-family:monospace;line-height:1}
+#view-landing .landing-count-label{font-size:10px;color:#9a9088;margin-top:3px}
+#view-landing .landing-members{display:flex;gap:4px;margin-top:10px}
+#view-landing .landing-avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:.88}
+#view-landing .landing-avatar span{font-size:9px;color:rgba(255,255,255,.92);font-family:serif}
+#view-landing .landing-cta{margin:0 24px;display:flex;flex-direction:column;gap:8px}
+
+/* ════ 3. 바이럴 CTA ════ */
+.viral-cta{margin:12px 13px 0;border-radius:10px;overflow:hidden;border:.5px solid #d4cec6}
+.viral-cta-top{background:#2e2820;padding:20px 18px 16px;text-align:center}
+.viral-cta-top .vt1{font-size:16px;color:#f0ebe1;font-style:italic;margin-bottom:5px}
+.viral-cta-top .vt2{font-size:11px;color:rgba(240,235,225,.55);line-height:1.6;margin-bottom:16px}
+.viral-cta-bottom{background:#faf6ee;padding:14px 16px}
+.viral-cta-bottom p{font-size:10px;color:#9a9088;font-style:italic;margin-bottom:8px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div id="complete-flash"></div>
+
+<!-- ════════════════ 1. 랜딩 화면 ════ -->
+<div id="view-landing" class="view active">
+  <div class="hdr">
+    <span class="hdr-logo">./—</span>
+    <span style="font-size:11px;color:#9a9088;font-style:italic">초대받았어요</span>
+    <span style="width:36px"></span>
+  </div>
+
+  <div class="landing-hero">
+    <div class="landing-from">✦ A 님이 초대했어요</div>
+    <div class="landing-title">여름 추억 2025<br>페이지를 <em>함께</em> 만들어요</div>
+    <div class="landing-sub">5명이 각자의 영상을 하나의 페이지에 채워요.<br>마지막 슬롯이 채워지면 함께 다운로드해요.</div>
+  </div>
+
+  <!-- 미리보기 카드 -->
+  <div class="landing-preview">
+    <div class="landing-slots">
+      <div class="slot-thumb" style="background:#c4d3c0;transform:rotate(-2deg)">
+        <div style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.5);font-size:5px;display:flex;align-items:center;justify-content:center">▶</div>
+      </div>
+      <div class="slot-thumb" style="background:#d3c4c4;transform:rotate(1deg)">
+        <div style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.5);font-size:5px;display:flex;align-items:center;justify-content:center">▶</div>
+      </div>
+      <div class="slot-thumb-empty">+</div>
+    </div>
+    <div class="landing-info">
+      <div class="landing-count">4 / 9</div>
+      <div class="landing-count-label">슬롯 채워짐</div>
+      <div class="landing-members">
+        <div class="landing-avatar" style="background:#9b8fc4"><span>A</span></div>
+        <div class="landing-avatar" style="background:#c4968f"><span>B</span></div>
+        <div class="landing-avatar" style="background:#b8a87c"><span>D</span></div>
+        <div class="landing-avatar" style="background:#9eb89c"><span>E</span></div>
+        <div style="width:22px;height:22px;border-radius:50%;border:1px dashed rgba(160,148,136,.4);display:flex;align-items:center;justify-content:center;font-size:8px;color:rgba(160,148,136,.6)">+</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="landing-cta">
+    <button class="btn-dark" style="font-size:14px;padding:15px" onclick="showView('filling')">
+      내 슬롯 채우러 가기 →
+    </button>
+    <p style="font-size:10px;color:#b0a898;font-style:italic;text-align:center;margin-top:4px">앱 없이 바로 참여할 수 있어요</p>
+  </div>
+
+  <div style="margin:28px 24px 0;padding:14px;background:#faf6ee;border-radius:8px;border:.5px solid #d4cec6">
+    <div style="font-size:10px;color:#7a7060;font-style:italic;margin-bottom:8px">./— 이란?</div>
+    <div style="font-size:11px;color:#5a4e40;line-height:1.7">친구들과 각자의 영상을 하나의 스크랩북 페이지에 담는 협업 영상 콜라주 앱이에요.</div>
+  </div>
+
+  <div class="footer">made with ./—</div>
+</div>
+
+<!-- ════════════════ 2. 채우기 화면 ════ -->
+<div id="view-filling" class="view">
+  <div class="hdr">
+    <span class="hdr-logo">./—</span>
+    <div class="hdr-title">여름 추억 2025</div>
+    <span class="badge-filling">채우는 중</span>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-bar"><div class="prog-fill"></div></div>
+    <span style="font-size:10px;color:#9a9088;font-family:monospace;white-space:nowrap">5 / 9</span>
+  </div>
+  <div class="canvas-wrap" id="canvas-filling"></div>
+  <div style="padding:14px 16px 8px;text-align:center">
+    <div style="font-size:11px;color:#9a9088;font-style:italic;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:6px">
+      <span style="width:4px;height:4px;border-radius:50%;background:#e8c88a;display:inline-block"></span>
+      4개의 슬롯이 채워지길 기다리는 중
+    </div>
+    <button class="btn-dark" onclick="triggerComplete()">
+      마지막 슬롯 완성 → 완성 페이지 보기
+      <span style="font-size:9px;color:#a09480;font-family:monospace">데모</span>
+    </button>
+    <p style="font-size:10px;color:#b0a898;font-style:italic;margin-top:8px">실제로는 친구들이 채우면 자동 완성돼요</p>
+  </div>
+</div>
+
+<!-- ════════════════ 3. 완성 화면 ════ -->
+<div id="view-done" class="view">
+  <div class="hdr">
+    <span class="hdr-logo">./—</span>
+    <div class="hdr-title">여름 추억 2025</div>
+    <span class="badge-done">완성 ✓</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px;padding:7px 16px">
+    <div style="width:5px;height:5px;border-radius:50%;background:#8ab88a;flex-shrink:0"></div>
+    <span style="font-size:10px;color:#9a9088;font-style:italic">5명이 함께 · 9개 슬롯 모두 완성</span>
+  </div>
+  <div class="canvas-wrap" id="canvas-done"></div>
+
+  <!-- 다운로드 + 공유 -->
+  <div style="margin:12px 13px 0;display:flex;flex-direction:column;gap:7px">
+    <button class="btn-dark">
+      <span>↓</span> 영상 다운로드
+      <span style="font-size:9px;color:#a09480;font-family:monospace">./—</span>
+    </button>
+    <button class="btn-outline" id="btn-share" onclick="toggleBtn('btn-share','링크 복사됨 ✓','공유하기')">공유하기</button>
+  </div>
+
+  <!-- 미니 우정 지도 -->
+  <div style="margin:12px 13px 0" class="pane">
+    <div class="pane-title">이 페이지를 함께 만든 사람들</div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="mini-svg-wrap">
+        <svg viewBox="0 0 100 100" style="width:100%;height:100%">
+          <line x1="50" y1="50" x2="78" y2="34" stroke="#a09488" stroke-width=".6" opacity=".35"/>
+          <line x1="50" y1="50" x2="78" y2="66" stroke="#a09488" stroke-width=".6" opacity=".35"/>
+          <line x1="50" y1="50" x2="22" y2="34" stroke="#a09488" stroke-width=".6" opacity=".35"/>
+          <line x1="50" y1="50" x2="22" y2="66" stroke="#a09488" stroke-width=".6" opacity=".35"/>
+          <circle cx="50" cy="50" r="18" fill="#9b8fc4" opacity=".9"/>
+          <circle cx="50" cy="50" r="20.5" fill="none" stroke="#9b8fc4" stroke-width=".8" opacity=".28"/>
+          <text x="50" y="51" text-anchor="middle" dominant-baseline="central" font-size="7" fill="rgba(255,255,255,.9)" font-family="serif">A</text>
+          <circle cx="78" cy="34" r="12" fill="#c4968f" opacity=".88"/>
+          <text x="78" y="35" text-anchor="middle" dominant-baseline="central" font-size="6" fill="rgba(255,255,255,.9)" font-family="serif">B</text>
+          <circle cx="78" cy="66" r="12" fill="#8fafb8" opacity=".88"/>
+          <text x="78" y="67" text-anchor="middle" dominant-baseline="central" font-size="6" fill="rgba(255,255,255,.9)" font-family="serif">C</text>
+          <circle cx="22" cy="34" r="12" fill="#b8a87c" opacity=".88"/>
+          <text x="22" y="35" text-anchor="middle" dominant-baseline="central" font-size="6" fill="rgba(255,255,255,.9)" font-family="serif">D</text>
+          <circle cx="22" cy="66" r="12" fill="#9eb89c" opacity=".88"/>
+          <text x="22" y="67" text-anchor="middle" dominant-baseline="central" font-size="6" fill="rgba(255,255,255,.9)" font-family="serif">E</text>
+        </svg>
+      </div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:13px;height:13px;border-radius:50%;background:#9b8fc4;opacity:.85;flex-shrink:0"></div><span style="font-size:11px;font-style:italic">A <span style="font-size:9px;color:#9a9088">나</span></span></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:13px;height:13px;border-radius:50%;background:#c4968f;opacity:.85;flex-shrink:0"></div><span style="font-size:11px">B</span></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:13px;height:13px;border-radius:50%;background:#8fafb8;opacity:.85;flex-shrink:0"></div><span style="font-size:11px">C</span></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:13px;height:13px;border-radius:50%;background:#b8a87c;opacity:.85;flex-shrink:0"></div><span style="font-size:11px">D</span></div>
+        <div style="display:flex;align-items:center;gap:6px"><div style="width:13px;height:13px;border-radius:50%;background:#9eb89c;opacity:.85;flex-shrink:0"></div><span style="font-size:11px">E</span></div>
+      </div>
+    </div>
+    <button class="btn-ghost" id="btn-mapshare" style="margin-top:12px" onclick="toggleBtn('btn-mapshare','우정 지도 링크 복사됨 ✓','우정 지도 링크 공유 — B, C, D, E도 볼 수 있어요')">
+      우정 지도 링크 공유 — B, C, D, E도 볼 수 있어요
+    </button>
+    <div style="margin-top:10px;padding:13px;background:rgba(155,143,196,.07);border-radius:8px;border:.5px solid rgba(155,143,196,.2);display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <div>
+        <div style="font-size:11px;color:#2e2820;margin-bottom:3px">나의 전체 우정 별자리</div>
+        <div style="font-size:10px;color:#9a9088;font-style:italic">모든 페이지에 걸친 누적 기록</div>
+      </div>
+      <button class="btn-sm" onclick="showView('constellation')">전체 보기 →</button>
+    </div>
+  </div>
+
+  <!-- ████ 3. 바이럴 CTA ████ -->
+  <div class="viral-cta">
+    <div class="viral-cta-top">
+      <div class="vt1">나도 페이지 만들고 싶다면?</div>
+      <div class="vt2">친구들을 초대해서<br>나만의 여름 추억 페이지를 만들어봐요</div>
+      <button class="btn-dark" style="background:#c8a87c;font-size:13px;padding:13px">
+        <span style="font-family:monospace;letter-spacing:.08em">./—</span> 앱 다운로드
+        <span style="font-size:9px;color:rgba(255,255,255,.6)">iOS · Android</span>
+      </button>
+    </div>
+    <div class="viral-cta-bottom">
+      <p>완성 페이지 공유해서 더 많은 친구를 초대해요</p>
+      <button class="btn-outline" id="btn-viral-share" onclick="toggleBtn('btn-viral-share','링크 복사됨 ✓','이 페이지 공유하기')">이 페이지 공유하기</button>
+    </div>
+  </div>
+
+  <div class="footer">made with ./—</div>
+</div>
+
+<!-- ════════════════ 4. 우정 별자리 ════ -->
+<div id="view-constellation" class="view">
+  <div class="hdr">
+    <button class="btn-back" onclick="showView('done')">← 돌아가기</button>
+    <div class="hdr-title">나의 우정 별자리</div>
+    <span class="hdr-logo">./—</span>
+  </div>
+  <div class="stat-row">
+    <div><div class="stat-val">6</div><div class="stat-label">함께한 친구</div></div>
+    <div><div class="stat-val">2</div><div class="stat-label">완성 페이지</div></div>
+    <div><div class="stat-val">2025.01</div><div class="stat-label">첫 시작</div></div>
+  </div>
+  <div style="background:#faf6ee;border-bottom:.5px solid #d4cec6">
+    <svg id="star-svg" viewBox="0 0 320 310" style="width:100%;height:auto;display:block">
+      <circle cx="14"  cy="19"  r="1.1" fill="#b0a898" opacity=".38"/>
+      <circle cx="302" cy="14"  r=".8"  fill="#b0a898" opacity=".38"/>
+      <circle cx="307" cy="250" r="1.2" fill="#b0a898" opacity=".38"/>
+      <circle cx="11"  cy="257" r=".7"  fill="#b0a898" opacity=".38"/>
+      <circle cx="282" cy="138" r="1"   fill="#b0a898" opacity=".38"/>
+      <circle cx="38"  cy="138" r=".8"  fill="#b0a898" opacity=".38"/>
+      <circle cx="166" cy="9"   r=".7"  fill="#b0a898" opacity=".38"/>
+      <circle cx="171" cy="288" r="1.1" fill="#b0a898" opacity=".38"/>
+      <circle cx="84"  cy="40"  r=".7"  fill="#b0a898" opacity=".38"/>
+      <circle cx="242" cy="268" r="1"   fill="#b0a898" opacity=".38"/>
+      <circle cx="311" cy="104" r=".8"  fill="#b0a898" opacity=".38"/>
+      <circle cx="24"  cy="208" r=".7"  fill="#b0a898" opacity=".38"/>
+      <circle cx="204" cy="50"  r=".6"  fill="#b0a898" opacity=".38"/>
+      <circle cx="88"  cy="218" r=".5"  fill="#b0a898" opacity=".38"/>
+      <circle cx="252" cy="50"  r=".8"  fill="#b0a898" opacity=".38"/>
+      <circle cx="132" cy="276" r=".5"  fill="#b0a898" opacity=".38"/>
+      <circle cx="318" cy="180" r=".7"  fill="#b0a898" opacity=".38"/>
+      <circle cx="5"   cy="145" r=".6"  fill="#b0a898" opacity=".38"/>
+      <circle cx="158" cy="4"   r=".5"  fill="#b0a898" opacity=".38"/>
+      <circle cx="318" cy="56"  r=".6"  fill="#b0a898" opacity=".38"/>
+
+      <line id="line-D" x1="160" y1="148" x2="160" y2="55"  stroke="#b8a87c" stroke-width="1.8" opacity="1" class="star-line"/>
+      <line id="line-B" x1="160" y1="148" x2="262" y2="108" stroke="#c0b4a8" stroke-width=".9" stroke-dasharray="5 4" opacity="1" class="star-line"/>
+      <line id="line-C" x1="160" y1="148" x2="268" y2="184" stroke="#c0b4a8" stroke-width=".9" stroke-dasharray="5 4" opacity="1" class="star-line"/>
+      <line id="line-E" x1="160" y1="148" x2="192" y2="238" stroke="#c0b4a8" stroke-width=".9" stroke-dasharray="5 4" opacity="1" class="star-line"/>
+      <line id="line-F" x1="160" y1="148" x2="58"  y2="108" stroke="#c0b4a8" stroke-width=".9" stroke-dasharray="5 4" opacity="1" class="star-line"/>
+      <line id="line-G" x1="160" y1="148" x2="52"  y2="184" stroke="#c0b4a8" stroke-width=".9" stroke-dasharray="5 4" opacity="1" class="star-line"/>
+
+      <circle cx="160" cy="101" r="10" fill="#faf6ee" stroke="#b8a87c" stroke-width=".8"/>
+      <text x="160" y="102" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#b8a87c" font-family="monospace" font-weight="500">2</text>
+
+      <g class="star-node" id="node-A" onmouseenter="hoverNode('A')" onmouseleave="unhoverNode()" onclick="hoverNode('A')">
+        <circle cx="160" cy="148" r="34" fill="transparent"/>
+        <circle id="ring-A" cx="160" cy="148" r="30" fill="none" stroke="#9b8fc4" stroke-width="1" opacity=".2"/>
+        <circle cx="160" cy="148" r="26" fill="#9b8fc4" opacity=".9"/>
+        <text x="160" y="149" text-anchor="middle" dominant-baseline="central" font-size="10" fill="rgba(255,255,255,.95)" font-family="serif">A</text>
+      </g>
+      <text x="160" y="189" text-anchor="middle" font-size="8" fill="#9a9088" font-family="serif" font-style="italic">나</text>
+
+      <g class="star-node" id="node-D" data-name="D" data-pages="2" data-bridge="true" onmouseenter="hoverNode('D')" onmouseleave="unhoverNode()" onclick="hoverNode('D')">
+        <circle cx="160" cy="55" r="29" fill="transparent"/>
+        <circle id="ring-D" cx="160" cy="55" r="26" fill="none" stroke="#b8a87c" stroke-width="1.2" opacity="0"/>
+        <circle cx="160" cy="55" r="22" fill="#b8a87c" opacity=".88"/>
+        <text x="160" y="56" text-anchor="middle" dominant-baseline="central" font-size="8" fill="rgba(255,255,255,.92)" font-family="serif">D</text>
+      </g>
+      <g class="star-node" id="node-B" data-name="B" data-pages="1" onmouseenter="hoverNode('B')" onmouseleave="unhoverNode()" onclick="hoverNode('B')">
+        <circle cx="262" cy="108" r="23" fill="transparent"/>
+        <circle id="ring-B" cx="262" cy="108" r="20" fill="none" stroke="#c4968f" stroke-width="1.2" opacity="0"/>
+        <circle cx="262" cy="108" r="16" fill="#c4968f" opacity=".88"/>
+        <text x="262" y="109" text-anchor="middle" dominant-baseline="central" font-size="8" fill="rgba(255,255,255,.92)" font-family="serif">B</text>
+      </g>
+      <g class="star-node" id="node-C" data-name="C" data-pages="1" onmouseenter="hoverNode('C')" onmouseleave="unhoverNode()" onclick="hoverNode('C')">
+        <circle cx="268" cy="184" r="23" fill="transparent"/>
+        <circle id="ring-C" cx="268" cy="184" r="20" fill="none" stroke="#8fafb8" stroke-width="1.2" opacity="0"/>
+        <circle cx="268" cy="184" r="16" fill="#8fafb8" opacity=".88"/>
+        <text x="268" y="185" text-anchor="middle" dominant-baseline="central" font-size="8" fill="rgba(255,255,255,.92)" font-family="serif">C</text>
+      </g>
+      <g class="star-node" id="node-E" data-name="E" data-pages="1" onmouseenter="hoverNode('E')" onmouseleave="unhoverNode()" onclick="hoverNode('E')">
+        <circle cx="192" cy="238" r="23" fill="transparent"/>
+        <circle id="ring-E" cx="192" cy="238" r="20" fill="none" stroke="#9eb89c" stroke-width="1.2" opacity="0"/>
+        <circle cx="192" cy="238" r="16" fill="#9eb89c" opacity=".88"/>
+        <text x="192" y="239" text-anchor="middle" dominant-baseline="central" font-size="8" fill="rgba(255,255,255,.92)" font-family="serif">E</text>
+      </g>
+      <g class="star-node" id="node-F" data-name="F" data-pages="1" onmouseenter="hoverNode('F')" onmouseleave="unhoverNode()" onclick="hoverNode('F')">
+        <circle cx="58" cy="108" r="23" fill="transparent"/>
+        <circle id="ring-F" cx="58" cy="108" r="20" fill="none" stroke="#b4a8c8" stroke-width="1.2" opacity="0"/>
+        <circle cx="58" cy="108" r="16" fill="#b4a8c8" opacity=".88"/>
+        <text x="58" y="109" text-anchor="middle" dominant-baseline="central" font-size="8" fill="rgba(255,255,255,.92)" font-family="serif">F</text>
+      </g>
+      <g class="star-node" id="node-G" data-name="G" data-pages="1" onmouseenter="hoverNode('G')" onmouseleave="unhoverNode()" onclick="hoverNode('G')">
+        <circle cx="52" cy="184" r="23" fill="transparent"/>
+        <circle id="ring-G" cx="52" cy="184" r="20" fill="none" stroke="#c4b0bc" stroke-width="1.2" opacity="0"/>
+        <circle cx="52" cy="184" r="16" fill="#c4b0bc" opacity=".88"/>
+        <text x="52" y="185" text-anchor="middle" dominant-baseline="central" font-size="8" fill="rgba(255,255,255,.92)" font-family="serif">G</text>
+      </g>
+      <text x="258" y="248" text-anchor="middle" font-size="7.5" fill="rgba(200,168,124,.6)" font-family="serif" font-style="italic">여름 추억</text>
+      <text x="55"  y="228" text-anchor="middle" font-size="7.5" fill="rgba(138,184,138,.6)" font-family="serif" font-style="italic">봄 나들이</text>
+    </svg>
+  </div>
+
+  <div id="hov-info">
+    <div id="hov-dot" style="width:10px;height:10px;border-radius:50%;flex-shrink:0"></div>
+    <span id="hov-name" style="font-size:14px;font-style:italic"></span>
+    <span id="hov-pages" style="font-size:11px;color:#9a9088"></span>
+    <span id="hov-bridge" class="bridge-tag" style="display:none">브릿지</span>
+  </div>
+
+  <div class="legend">
+    <div style="display:flex;align-items:center;gap:5px"><div class="legend-line"></div><span class="legend-text">2페이지 함께</span></div>
+    <div style="display:flex;align-items:center;gap:5px"><div class="legend-dash"></div><span class="legend-text">1페이지 함께</span></div>
+  </div>
+
+  <div style="padding:14px 16px;border-top:.5px solid #d4cec6">
+    <div style="font-size:11px;color:#7a7060;font-style:italic;margin-bottom:12px;letter-spacing:.03em">함께 만든 페이지들</div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <div class="hist-card">
+        <div style="width:8px;height:8px;border-radius:50%;background:#c8a87c;opacity:.85;flex-shrink:0"></div>
+        <div style="flex:1">
+          <div style="font-size:12px;color:#2e2820;margin-bottom:6px;font-style:italic">여름 추억 2025</div>
+          <div style="display:flex;gap:5px;align-items:center">
+            <div class="member-dot" style="background:#c4968f"><span>B</span></div>
+            <div class="member-dot" style="background:#8fafb8"><span>C</span></div>
+            <div class="member-dot" style="background:#b8a87c"><span>D</span></div>
+            <div class="member-dot" style="background:#9eb89c"><span>E</span></div>
+          </div>
+        </div>
+        <span style="font-size:10px;color:#b0a898;font-family:monospace;flex-shrink:0">2025.03</span>
+      </div>
+      <div class="hist-card">
+        <div style="width:8px;height:8px;border-radius:50%;background:#8ab88a;opacity:.85;flex-shrink:0"></div>
+        <div style="flex:1">
+          <div style="font-size:12px;color:#2e2820;margin-bottom:6px;font-style:italic">봄 나들이 2025</div>
+          <div style="display:flex;gap:5px;align-items:center">
+            <div class="member-dot" style="background:#b8a87c"><span>D</span></div>
+            <div class="member-dot" style="background:#b4a8c8"><span>F</span></div>
+            <div class="member-dot" style="background:#c4b0bc"><span>G</span></div>
+          </div>
+        </div>
+        <span style="font-size:10px;color:#b0a898;font-family:monospace;flex-shrink:0">2025.01</span>
+      </div>
+    </div>
+  </div>
+  <div style="padding:4px 16px 36px">
+    <button class="btn-ghost" id="btn-starshare" onclick="toggleBtn('btn-starshare','별자리 링크 복사됨 ✓','이 별자리 링크 공유하기')">이 별자리 링크 공유하기</button>
+    <div class="footer">made with ./—</div>
+  </div>
+</div>
+
+</div><!-- .wrap -->
+
+<script>
+// ── 슬롯 데이터 ───────────────────────────────────────────
+
+const SLOT_META = [
+  {rot:'-2deg',  top:'7%', left:'4%',  w:'29%',h:'21%', color:'#c4d3c0',user:'A',label:'벚꽃 소풍',   filled:true},
+  {rot:'1.5deg', top:'5%', left:'38%', w:'26%',h:'20%', color:'#d3c4c4',user:'B',label:'생일 파티',   filled:true},
+  {rot:'-1deg',  top:'6%', left:'70%', w:'25%',h:'19%',                             filled:false},
+  {rot:'2deg',   top:'37%',left:'2%',  w:'24%',h:'18%', color:'#d3cdb8',user:'D',label:'한강 피크닉', filled:true},
+  {rot:'-1.5deg',top:'35%',left:'34%', w:'30%',h:'21%',                             filled:false},
+  {rot:'2.5deg', top:'34%',left:'70%', w:'25%',h:'19%', color:'#d3c4cf',user:'E',label:'분식집',      filled:true},
+  {rot:'-2.5deg',top:'65%',left:'3%',  w:'27%',h:'20%',                             filled:false},
+  {rot:'1deg',   top:'63%',left:'37%', w:'25%',h:'19%', color:'#d3c8b8',user:'C',label:'아침 운동',   filled:true},
+  {rot:'-1.5deg',top:'66%',left:'67%', w:'27%',h:'20%',                             filled:false},
+];
+
+const ALL_FILLED = [
+  {rot:'-2deg',  top:'7%', left:'4%',  w:'29%',h:'21%', color:'#c4d3c0',user:'A',label:'벚꽃 소풍'},
+  {rot:'1.5deg', top:'5%', left:'38%', w:'26%',h:'20%', color:'#d3c4c4',user:'B',label:'생일 파티'},
+  {rot:'-1deg',  top:'6%', left:'70%', w:'25%',h:'19%', color:'#c4c4d3',user:'C',label:'카페 모임'},
+  {rot:'2deg',   top:'37%',left:'2%',  w:'24%',h:'18%', color:'#d3cdb8',user:'D',label:'한강 피크닉'},
+  {rot:'-1.5deg',top:'35%',left:'34%', w:'30%',h:'21%', color:'#c8d3c0',user:'A',label:'노을 타임'},
+  {rot:'2.5deg', top:'34%',left:'70%', w:'25%',h:'19%', color:'#d3c4cf',user:'E',label:'분식집'},
+  {rot:'-2.5deg',top:'65%',left:'3%',  w:'27%',h:'20%', color:'#c4d0d3',user:'B',label:'야경 드라이브'},
+  {rot:'1deg',   top:'63%',left:'37%', w:'25%',h:'19%', color:'#d3c8b8',user:'C',label:'아침 운동'},
+  {rot:'-1.5deg',top:'66%',left:'67%', w:'27%',h:'20%', color:'#c8c4d3',user:'D',label:'주말 마켓'},
+];
+
+const NODE_COLORS = {D:'#b8a87c',B:'#c4968f',C:'#8fafb8',E:'#9eb89c',F:'#b4a8c8',G:'#c4b0bc'};
+
+// ── 렌더링 ────────────────────────────────────────────────
+
+function renderCanvas(el, slots) {
+  el.innerHTML = '';
+  const title = document.createElement('div');
+  title.className = 'pg-title';
+  title.innerHTML = '여름 추억<br><span>2025</span>';
+  el.appendChild(title);
+
+  [['31%','6%'],['54%','29%'],['21%','63%']].forEach(([t,l]) => {
+    const a = document.createElement('div');
+    a.className = 'aster'; a.style.top = t; a.style.left = l; a.textContent = '✳';
+    el.appendChild(a);
+  });
+
+  slots.forEach((s, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'slot';
+    wrap.dataset.rot = s.rot;
+    wrap.style.cssText = `top:${s.top};left:${s.left};width:${s.w};height:${s.h};transform:rotate(${s.rot})`;
+
+    if (s.filled !== false) {
+      wrap.innerHTML = `<div class="slot-filled" style="background:${s.color}"><div class="slot-play">▶</div><div class="slot-bar"><span class="slot-label">${s.label||''}</span><span class="slot-user">${s.user||''}</span></div></div>`;
+    } else {
+      wrap.innerHTML = `<div class="slot-empty"><div class="slot-plus">+</div><span class="slot-none">비어있음</span></div>`;
+    }
+    el.appendChild(wrap);
+  });
+}
+
+renderCanvas(document.getElementById('canvas-filling'), SLOT_META);
+renderCanvas(document.getElementById('canvas-done'), ALL_FILLED);
+
+// ── 완성 애니메이션 ───────────────────────────────────────
+
+function triggerComplete() {
+  showView('done');
+  window.scrollTo(0,0);
+
+  // 순차적으로 슬롯 팝 애니메이션
+  const slots = document.querySelectorAll('#canvas-done .slot');
+  slots.forEach((slot, i) => {
+    setTimeout(() => {
+      const rot = slot.dataset.rot || '0deg';
+      slot.style.setProperty('--rot', rot);
+      slot.classList.add('slot-pop');
+      setTimeout(() => slot.classList.remove('slot-pop'), 500);
+    }, i * 55);
+  });
+
+  // 화면 shimmer
+  const flash = document.getElementById('complete-flash');
+  flash.classList.add('show');
+  setTimeout(() => flash.classList.remove('show'), 600);
+
+  // 완성 뱃지 + 텍스트 fade-up
+  const badge = document.querySelector('#view-done .badge-done');
+  if (badge) { badge.style.animation = 'none'; badge.offsetHeight; badge.style.animation = 'fadeUp .5s ease both'; }
+}
+
+// ── 뷰 전환 ──────────────────────────────────────────────
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── 버튼 토글 ─────────────────────────────────────────────
+
+function toggleBtn(id, activeText, defaultText) {
+  const btn = document.getElementById(id);
+  btn.textContent = activeText;
+  btn.classList.add('active');
+  setTimeout(() => { btn.textContent = defaultText; btn.classList.remove('active'); }, 2200);
+}
+
+// ── 별자리 인터랙션 ───────────────────────────────────────
+
+const allFriendNodes = ['D','B','C','E','F','G'];
+
+function hoverNode(name) {
+  const info = document.getElementById('hov-info');
+  if (name === 'A') {
+    allFriendNodes.forEach(n => {
+      document.getElementById('line-'+n).setAttribute('opacity','1');
+      document.getElementById('node-'+n).setAttribute('opacity','1');
+    });
+    document.getElementById('ring-A').setAttribute('opacity','.45');
+    info.style.opacity = '0';
+  } else {
+    allFriendNodes.forEach(n => {
+      document.getElementById('line-'+n).setAttribute('opacity', n===name?'1':'0.08');
+      document.getElementById('node-'+n).setAttribute('opacity', n===name?'1':'0.22');
+      document.getElementById('ring-'+n).setAttribute('opacity', n===name?'.4':'0');
+    });
+    document.getElementById('ring-A').setAttribute('opacity','.2');
+    const node = document.getElementById('node-'+name);
+    document.getElementById('hov-dot').style.background   = NODE_COLORS[name];
+    document.getElementById('hov-name').textContent       = name;
+    document.getElementById('hov-pages').textContent      = node.dataset.pages + '페이지 함께';
+    document.getElementById('hov-bridge').style.display   = node.dataset.bridge==='true'?'inline-block':'none';
+    info.style.opacity = '1';
+  }
+}
+
+function unhoverNode() {
+  allFriendNodes.forEach(n => {
+    document.getElementById('line-'+n).setAttribute('opacity','1');
+    document.getElementById('node-'+n).setAttribute('opacity','1');
+    document.getElementById('ring-'+n).setAttribute('opacity','0');
+  });
+  document.getElementById('ring-A').setAttribute('opacity','.2');
+  document.getElementById('hov-info').style.opacity = '0';
+}
+
+document.getElementById('star-svg').addEventListener('mouseleave', unhoverNode);
+</script>
+</body>
+</html>
